@@ -3,6 +3,8 @@ using System.Text.RegularExpressions;
 using GraderCommon;
 using GraderCommon.Enums;
 using GraderCommon.Exceptions;
+using GraderCommon.Reporting;
+using GraderCommon.SetupInfo;
 
 namespace GraderServices;
 
@@ -16,9 +18,11 @@ public partial class Grader
     /// </summary>
     /// <param name="info">all information needed to grade submissions</param>
     /// <returns></returns>
-    public List<GradeReport> Grade(GradingInfo info)
+    public List<SubmissionReport> Grade(GradingInfo info)
     {
-        var tempGradingDirName = $"{info.AssignmentName}-{DateTime.UtcNow.ToFileTime()}";
+        var guid = Guid.NewGuid();
+        var dirName = MultipleSpaces().Replace(info.AssignmentName, "-");
+        var tempDir = $"{Path.GetTempPath()}{dirName}-{guid}";
         
         // ensure the info object is properly setup
         info.ValidateInfo();
@@ -30,20 +34,22 @@ public partial class Grader
         var reports = GradeStudentFiles(info, expectedOutput);
         return reports;
     }
-    
+
     /// <summary>
     /// grades student files
     /// </summary>
     /// <param name="info"></param>
+    /// <param name="expectedOutput"></param>
     /// <returns></returns>
-    private List<GradeReport> GradeStudentFiles(GradingInfo info, IEnumerable<string> expectedOutput)
+    private List<SubmissionReport> GradeStudentFiles(GradingInfo info, IEnumerable<string> expectedOutput)
     {
-        var results = new List<GradeReport>();
+        var results = new List<SubmissionReport>();
         
         // get the file names (not paths, just names) to grade
         var files = Directory
             .GetFiles(info.StudentFilesLocation)
-            .Select(x => x.Split(Path.DirectorySeparatorChar).Last());
+            .Select(x => x.Split(Path.DirectorySeparatorChar)
+            .Last());
         
         // grade each file
         foreach (var file in files)
@@ -63,13 +69,14 @@ public partial class Grader
     /// <param name="expectedOutput">expected outputted lines</param>
     /// <param name="info">grading info</param>
     /// <returns>a grading report</returns>
-    private static GradeReport CompareStudentOutputToExpected
+    private static SubmissionReport CompareStudentOutputToExpected
     (
         List<string> studentOutput,
         IEnumerable<string> expectedOutput,
         GradingInfo info
     )
     {
+        // start off with free points, if there are any
         var score = 0 + info.FreePoints ?? 0;
         var incorrectLine = new List<IncorrectLine>();
         
@@ -101,7 +108,7 @@ public partial class Grader
             }
         });
 
-        return new GradeReport
+        return new SubmissionReport
         {
             ReportId = 1,
             StudentId = Guid.NewGuid().ToString(),
