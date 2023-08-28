@@ -1,5 +1,8 @@
 ﻿namespace GraderServices;
 
+/// <summary>
+/// a collection of extension methods
+/// </summary>
 public static class Methods
 {
     /// <summary>

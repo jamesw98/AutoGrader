@@ -1,8 +1,11 @@
 ﻿using GraderCommon.Enums;
 using GraderCommon.Exceptions;
 
-namespace GraderCommon;
+namespace GraderCommon.SetupInfo;
 
+/// <summary>
+/// base info used for running the grader
+/// </summary>
 public class GradingInfo
 {
     /// <summary>
@@ -73,9 +76,9 @@ public class GradingInfo
     public int? FreePoints { get; set; }
 
     /// <summary>
-    /// time before giving 0 (or FreePoints) points to the submission
+    /// time in seconds before giving 0 (or FreePoints) points to the submission
     /// </summary>
-    public required double Timeout { get; set; } = 0.30;
+    public required int Timeout { get; set; } = 30;
 
     /// <summary>
     /// collapses all whitespace to 1 space per line
@@ -98,12 +101,17 @@ public class GradingInfo
     ///
     ///     a test"
     /// </summary>
-    public required bool CollapseNewLines { get; set; } = false;
+    public bool CollapseNewLines { get; set; } = false;
 
     /// <summary>
     /// if true, case wil mater when comparing lines from reference to student outputs
     /// </summary>
-    public required bool CaseSensitive { get; set; } = false;
+    public bool CaseSensitive { get; set; } = false;
+    
+    /// <summary>
+    /// whether to keep the temp directory or not
+    /// </summary>
+    public bool KeepTempDir { get; set; } = false;
     
     /// <summary>
     /// validate the grading info

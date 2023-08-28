@@ -1,8 +1,11 @@
 ﻿using GraderCommon.Enums;
 using GraderCommon.Exceptions;
 
-namespace GraderCommon;
+namespace GraderCommon.SetupInfo;
 
+/// <summary>
+/// information about the language this assignment uses
+/// </summary>
 public class LanguageInfo
 {
     /// <summary>
@@ -46,6 +49,12 @@ public class LanguageInfo
     public string? InputFilename { get; set; }
     
     /// <summary>
+    /// list of require files names, for instance, if a a student is implementing a stack in java, the other required
+    /// files  could include things like the interface they're implementing, test cases, the main file, etc
+    /// </summary>
+    public List<string>? RequiredFilenames { get; set; }
+    
+    /// <summary>
     /// validates that the info give is properly formatted
     /// </summary>
     /// <exception cref="GraderArgException"></exception>
@@ -62,6 +71,11 @@ public class LanguageInfo
         if (InputType == InputType.File && InputFilename == null)
         {
             throw new GraderArgException("File input type was selected, but no input file was specified");
+        }
+
+        if (RequiredFilenames != null && !RequiredFilenames.Any())
+        {
+            throw new GraderArgException("Required file is not null, but is empty");
         }
     }
 }

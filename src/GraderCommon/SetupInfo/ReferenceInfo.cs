@@ -1,7 +1,10 @@
 ﻿using GraderCommon.Enums;
 
-namespace GraderCommon;
+namespace GraderCommon.SetupInfo;
 
+/// <summary>
+/// reference solution information
+/// </summary>
 public class ReferenceInfo
 {
     /// <summary>

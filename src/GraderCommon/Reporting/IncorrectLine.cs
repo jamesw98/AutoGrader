@@ -1,5 +1,8 @@
-﻿namespace GraderCommon;
+﻿namespace GraderCommon.Reporting;
 
+/// <summary>
+/// represents a line that does not match the expected output
+/// </summary>
 public class IncorrectLine
 {
     /// <summary>

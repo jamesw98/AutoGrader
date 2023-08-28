@@ -1,6 +1,9 @@
-﻿namespace GraderCommon;
+﻿namespace GraderCommon.Reporting;
 
-public class GradeReport
+/// <summary>
+/// a report for a single submission
+/// </summary>
+public class SubmissionReport
 {
     /// <summary>
     /// unique id for this grade report
