@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using GraderCommon;
 using GraderCommon.Enums;
 using GraderCommon.Exceptions;
+using GraderCommon.Processes;
 using GraderCommon.Reporting;
 using GraderCommon.SetupInfo;
 
@@ -55,7 +56,28 @@ public partial class Grader
         foreach (var file in files)
         {
             var studentOutput = ProcessRunner.RunInterpreted(file, info);
-            var report = CompareStudentOutputToExpected(studentOutput.ToList(), expectedOutput, info);
+            var report = studentOutput.ProcessResult switch
+            {
+                ProcessResult.Exited => 
+                    CompareStudentOutputToExpected(
+                        studentOutput.Output.ToList(),
+                        expectedOutput,
+                        info
+                    ),
+                ProcessResult.TimedOut => 
+                    BuildFailedSubmissionReport(
+                        studentOutput, 
+                        info, 
+                        $"Your submission ran longer than the max time of {info.Timeout} seconds"
+                    ),
+                ProcessResult.Exception => 
+                    BuildFailedSubmissionReport(
+                        studentOutput, 
+                        info, 
+                    $"Your submission encountered an exception:\n\n{studentOutput.ExceptionMessage ?? "Unknown"}"
+                ),
+                _ => throw new ArgumentOutOfRangeException()
+            };
             results.Add(report);
         }
 
@@ -77,15 +99,15 @@ public partial class Grader
     )
     {
         // start off with free points, if there are any
-        var score = 0 + info.FreePoints ?? 0;
-        var incorrectLine = new List<IncorrectLine>();
+        var score = info.FreePoints ?? 0;
+        var incorrectLines = new List<IncorrectLine>();
         
         expectedOutput.Each((expected, i) =>
         {
             // this feels kinda gross, but it works
             if (i > studentOutput.Count - 1)
             {
-                incorrectLine.Add(new IncorrectLine
+                incorrectLines.Add(new IncorrectLine
                 {
                     ErrorMessage = "No line found for expected line",
                     StudentLine = "",
@@ -95,7 +117,7 @@ public partial class Grader
             }
             else if (!expected.Trim().Equals(studentOutput[i].Trim()))
             {
-                incorrectLine.Add(new IncorrectLine
+                incorrectLines.Add(new IncorrectLine
                 {
                     StudentLine = studentOutput[i],
                     ExpectedLine = expected,
@@ -110,12 +132,34 @@ public partial class Grader
 
         return new SubmissionReport
         {
-            ReportId = 1,
+            ReportId = Guid.NewGuid().ToString(),
+            // this student id is temporary
             StudentId = Guid.NewGuid().ToString(),
             ScoredPoints = score,
             MaxPoints = info.MaxPoints,
-            IncorrectLines = incorrectLine,
+            IncorrectLines = incorrectLines,
             StudentLines = studentOutput
+        };
+    }
+    
+    /// <summary>
+    /// builds a report for a submission that has failed, either timed out, or encountered an exception
+    /// </summary>
+    /// <param name="output"></param>
+    /// <param name="info"></param>
+    /// <param name="message"></param>
+    /// <returns></returns>
+    private SubmissionReport BuildFailedSubmissionReport(ProcessOutput output, GradingInfo info, string message)
+    {
+        return new SubmissionReport
+        {
+            ReportId = Guid.NewGuid().ToString(),
+            // this student id is temporary
+            StudentId = Guid.NewGuid().ToString(),
+            ScoredPoints = info.FreePoints ?? 0,
+            MaxPoints = info.MaxPoints,
+            IncorrectLines = new List<IncorrectLine>(),
+            Message = message,
         };
     }
     

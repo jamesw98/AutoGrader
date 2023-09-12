@@ -1,6 +1,7 @@
 ﻿using GraderCommon;
 using GraderCommon.Enums;
 using GraderCommon.Exceptions;
+using GraderCommon.SetupInfo;
 using GraderServices;
 
 var grader = new Grader();
@@ -18,7 +19,7 @@ var info = new GradingInfo
     },
     MaxPoints = 90,
     PointsPerLine = 10,
-    Timeout = 30,
+    Timeout = 5,
     CollapseWhiteSpace = false,
     CollapseNewLines = false,
     CaseSensitive = false,
@@ -29,7 +30,7 @@ var info = new GradingInfo
 try
 {
     var reports = grader.Grade(info);
-    Console.WriteLine(Path.GetTempPath());
+    Console.WriteLine();
 }
 catch (GraderException ge)
 {

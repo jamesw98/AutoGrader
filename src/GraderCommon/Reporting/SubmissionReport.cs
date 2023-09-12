@@ -8,7 +8,7 @@ public class SubmissionReport
     /// <summary>
     /// unique id for this grade report
     /// </summary>
-    public required long ReportId { get; set; }
+    public required string ReportId { get; set; }
     
     /// <summary>
     /// can be a PID, email address, name, etc
@@ -31,9 +31,9 @@ public class SubmissionReport
     public List<string>? StudentLines { get; set; }
     
     /// <summary>
-    /// only used if the student's code encountered an exception  
+    /// optional message to include   
     /// </summary>
-    public string? StudentException { get; set; }
+    public string? Message { get; set; }
     
     /// <summary>
     /// list of incorrect lines from the student's output
