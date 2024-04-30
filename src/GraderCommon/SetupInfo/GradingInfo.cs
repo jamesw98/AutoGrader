@@ -104,7 +104,7 @@ public class GradingInfo
     public bool CollapseNewLines { get; set; } = false;
 
     /// <summary>
-    /// if true, case wil mater when comparing lines from reference to student outputs
+    /// if true, case wil matter when comparing lines from reference to student outputs
     /// </summary>
     public bool CaseSensitive { get; set; } = false;
     
